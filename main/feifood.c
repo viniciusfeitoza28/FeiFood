@@ -8,7 +8,9 @@
 
 
 void menu();
+void menu_aposlogin();
 void cadastro();
+void cadastrar_novo();
 void login();
 void mostrar_cardapio();
 
@@ -47,6 +49,40 @@ void menu(){
     }
 }
 
+void menu_aposlogin(){
+	
+	printf("=====BEM VINDO AO FEI FOOD=====\N=====Oque deseja fazer?\n");
+	
+	printf("1- cadastrar novo usuario\n2- buscar por alimento\n3- ver historico\n4- cadastrar pedido\n5- avaliar pedido");
+	
+	int y;
+	scanf("%d", &y);
+	
+	switch(y){
+		case 1:
+			cadastrar_novo();
+			
+		
+//		case 2:
+//			//buscar_alimento():
+//			
+//		case 3:
+//			//historico();
+//			
+//		case 4:
+//			//pedidos();
+//			
+//		case 5:
+//			//avaliacao();
+		
+		default:
+			printf("digite uma opcao valida!");
+			menu_aposlogin();
+		
+	}
+	
+}
+
 //parte de cadastro
 void cadastro(){
     printf("Digite seu nome: ");
@@ -71,6 +107,34 @@ void cadastro(){
     printf("Senha: %s\n", senha_input);
     
     menu();
+}
+
+void cadastrar_novo(){
+	
+	printf("Digite seu nome: ");
+    scanf("%s", nome_input);
+    
+    printf("Digite sua senha: ");
+    scanf("%s", senha_input);
+    
+    FILE *usuarios = fopen("usuarios.txt", "a");
+    if (usuarios == NULL) {
+        printf("Erro ao abrir arquivo!\n");
+        system("pause");
+        return;
+    }
+
+    fprintf(usuarios, "%s, %s\n", nome_input, senha_input);
+    fclose(usuarios);
+
+    printf("Cadastro realizado com sucesso!\n");
+    printf("Seu cadastro:\n");
+    printf("Nome: %s\n", nome_input);
+    printf("Senha: %s\n", senha_input);
+    
+    menu_aposlogin();
+	
+	
 }
 
 
@@ -130,7 +194,7 @@ void mostrar_cardapio(){
 
     fclose(cardapio);	
     
-    menu();
+    menu_aposlogin();
 }
 
 int main(){
