@@ -1,92 +1,142 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
-void cadastro(char nome[], char senha[]);
+
+
+
+
+void menu();
+void cadastro();
 void login();
+void mostrar_cardapio();
+
+char nome_input[50];
+char senha_input[50];
+
+
+void menu(){
+    // Menu inicial
+    printf("Bem Vindo ao FeiFood!\n\n\n");
+    
+    printf("1- Cadastro\n2- Login\n3- cardapio\n4- exit\n");
+    printf("Escolha uma opcao: ");
+    
+    int x;
+    scanf("%d", &x);
+    
+    switch(x){
+        case 1: 
+            cadastro();
+            break;
+            
+        case 2: 
+            login();
+            break;
+            
+        case 3:
+            mostrar_cardapio();
+        
+        case 4:
+        	exit(0);
+        default: 
+            printf("Escolha uma opcao valida\n");
+            menu(); 
+            break;
+    }
+}
 
 //parte de cadastro
-void cadastro(char nome[], char senha[]){
-	
-	printf("Digite seu nome:");
-	scanf("%s" , nome);
-	
-	printf("Digite sua senha:");
-	scanf("%s" , senha);
-	
+void cadastro(){
+    printf("Digite seu nome: ");
+    scanf("%s", nome_input);
+    
+    printf("Digite sua senha: ");
+    scanf("%s", senha_input);
+    
+    FILE *usuarios = fopen("usuarios.txt", "a");
+    if (usuarios == NULL) {
+        printf("Erro ao abrir arquivo!\n");
+        system("pause");
+        return;
+    }
+
+    fprintf(usuarios, "%s, %s\n", nome_input, senha_input);
+    fclose(usuarios);
+
+    printf("Cadastro realizado com sucesso!\n");
+    printf("Seu cadastro:\n");
+    printf("Nome: %s\n", nome_input);
+    printf("Senha: %s\n", senha_input);
+    
+    menu();
 }
 
 
-// void login(){
+void login(){
 	
-// 	boolean valido = true;
-	
-// 	arquivo = fopen("C:\\Users\\vini2\\OneDrive\\Área de Trabalho\\usuarios.txt", "r");
-	
-// 	if(arquivo == NULL){
-// 		printf("Erro! nenhum usuario cadastrado");
-// 		return;
-// 	}
+	char usuario_correto[50];
+	char senha_correta[50];
+	char usuario_input[50];
+	char senha_input[50];
+	bool valido = false;
 	
 	
-	// while(fscanf(arquivo, "%s, %s",nome_arquivo, senha_arquivo))
+	printf("=====LOGIN=====\n");
+    printf("Usuario: ");
+    scanf("%s", usuario_input);
+    printf("Senha: ");
+    scanf("%s", senha_input);
+    
 	
+	FILE *usuarios = fopen("usuarios.txt", "r");
+    
 	
-	
-// }
+	if(usuarios != NULL){
+        while(fscanf(usuarios, "%50[^,], %50s", usuario_correto, senha_correta) == 2){
+            if(strcmp(usuario_input, usuario_correto) == 0 && strcmp(senha_input, senha_correta) == 0){
+                valido = true;
+                break;
+            }
+        }
+        fclose(usuarios);
+    }
+    
+    if(valido){
+        printf("Login efetuado com sucesso!\n");
+        //cardapio lista busca historico e avaliação
+    } else {
+        printf("Usuario ou senha incorretos!\n");
+    }
+}
 
+void mostrar_cardapio(){
+    // pra mostrar o cardapio
+    FILE *cardapio = fopen("cardapio.txt", "r");
+    
+    if(cardapio == NULL){
+        printf("nao foi possivel abrir o arquivo.\n");
+        //voltar pra HUD depois do login;
+        return;
+    }
+    
+    char itens[1000];
+    printf("comidas em nosso cardapio:\n\n");
+    
+    while(fgets(itens, 1000, cardapio) != NULL){
+        printf("%s", itens);
+    }
 
+    fclose(cardapio);	
+    
+    menu();
+}
 
 int main(){
-	
-	
-	
-	//menu inicial
-	printf("Bem Vindo ao FeiFood!\n\n\n");
 
-    char nome[50];
-    char senha[50];
 	
-	int x;
-	
-	printf("1- Cadastro\n2- Login");
-	
-	scanf("%d", &x);
-	
-	switch(x){
- 		case 1: cadastro(nome, senha);
-
-            cadastro(nome, senha);
-
-            FILE *usuarios = fopen("C:\\Users\\vini2\\OneDrive\\Área de Trabalho\\usuarios.txt", "a");
-            if (usuarios == NULL) {
-                printf("Erro ao abrir arquivo!\n");
-                system("pause");
-                return 1;
-            }
-
-            fprintf(usuarios, "%s, %s\n", nome, senha);
-            fclose(usuarios);
-
-            printf("Cadastro realizado com sucesso!\n");
-            printf("Seu cadastro:\n");
-            printf("Nome: %s\n", nome);
-            printf("Senha: %s\n", senha);
-            break;
-
- 		case 2: login();
- 			break;
- 		
- 		case 3:
- 			return 1;
- 			break;
- 	
- 		default: printf("escolha uma opcao valida");
- 			break;
-}
-
-	//////////////////////////////////////////
+	menu();
 	system("pause");
-
 	return 0;
 }
