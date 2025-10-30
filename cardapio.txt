@@ -1,0 +1,33 @@
+=====Lanches=====
+X-Burger  |  R$24,99
+X-Bacon  |  R$26,99
+X-Frango  |  R$26,99
+X-Tudo  |  R$30,00
+
+=====Executivos=====
+Strogonoff de Frango  |  R$35,00
+Feijoada Completa  |  R$40,00
+Frango a Parmegiana  |  R$30,00s
+Bife a Cavalo  |  R$44,99
+
+=====Massas=====
+Espaguetao do Almeida  |  R$35,00
+Fettuccine Alfredo  |  R$60,00
+
+=====Acompanhamentos=====
+Arroz e Feijao  | R$10,00
+Batata Frita  |  R$10,00
+Pure de Batata  |  R$10,00
+Salada Caesar  |  R$12,00
+
+=====Sobremesas=====
+Pudim de Leite 350g |  R$15,00
+Mousse de Chocolate 350g  |  R$15,00
+Brownie (350g) com Sorvete(duas bolas)  |  R$22,00
+
+=====Bebidas=====
+Refrigerante  |  R$7,00
+Suco Natural  |  R$12,00
+Agua  |  R$5,00
+Cerveja  |  R$10,00
+
