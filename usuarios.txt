@@ -1,1 +1,9 @@
-tu, pa
+jota, 123
+vini, vini123
+feitas, feitas123
+cu, cu
+porra, caralho
+hoe, hoe123
+puta, puta123
+desc123, desc123
+a, a
