@@ -1,7 +1,13 @@
+
+git config --global user.email "vini280207@gmail.com"
+git config --global user.name "Vinicius Feitoza"
+
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <ctype.h>
 
 void menu();
 void menu_aposlogin();
@@ -42,6 +48,10 @@ void menu(){
 }
 void menu_aposlogin(){
     int opcao;
+    
+    //limpa buffer
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
     
 	    do {
 	        printf("\n=====BEM VINDO AO FEI FOOD=====\n\nOque deseja fazer?\n\n");
@@ -242,11 +252,15 @@ void cadastrar_pedido() {
 void buscar_alimento(){
     char busca[100];
     char linha[200];
+    char categoria[100] = "";
     bool encontrou = false;
+    int i;
     
     printf("Digite a comida que deseja achar: ");
-    scanf("%99s", busca);
-    getchar(); // Limpa o buffer do input
+    scanf("%99s", busca); // Usando scanf em vez de fgets
+    getchar(); // Limpa o buffer após scanf
+    
+    printf("DEBUG: Buscando por: '%s'\n", busca);
     
     FILE *cardapio = fopen("cardapio.txt", "r");
     if(cardapio == NULL){
@@ -262,12 +276,34 @@ void buscar_alimento(){
     while(fgets(linha, sizeof(linha), cardapio) != NULL){
         linha[strcspn(linha, "\n")] = 0;
         
-        if(strstr(linha, "=====") != NULL || strstr(linha, "CARDAPIO") != NULL || 
-           strstr(linha, "comidas") != NULL || strlen(linha) == 0){
+        // Verifica se é uma linha de categoria
+        if(strstr(linha, "=====") != NULL){
+            char temp[100];
+            strcpy(temp, linha);
+            char *start = temp;
+            while(*start == '=') start++;
+            char *end = strstr(start, "=====");
+            if(end != NULL) *end = '\0';
+            strcpy(categoria, start);
             continue;
         }
-        if(strstr(linha, busca) != NULL){
-            printf("%s\n", linha);
+        
+        // Pula linhas vazias
+        if(strlen(linha) == 0) continue;
+        
+        // Busca
+        char linha_lower[200];
+        char busca_lower[100];
+        strcpy(linha_lower, linha);
+        strcpy(busca_lower, busca);
+        
+        for(i = 0; linha_lower[i]; i++) linha_lower[i] = tolower(linha_lower[i]);
+        for(i = 0; busca_lower[i]; i++) busca_lower[i] = tolower(busca_lower[i]);
+        
+        if(strstr(linha_lower, busca_lower) != NULL){
+            printf("Categoria: %s\n", categoria);
+            printf("Alimento: %s\n", linha);
+            printf("------------------------\n");
             encontrou = true;
         }
     }
@@ -281,39 +317,6 @@ void buscar_alimento(){
     printf("\n");
     system("pause");
     menu_aposlogin();
-}
-
-void cadastra_pedido(){
-	
-	
-	char alimento[100];
-    char data[20];
-    int quantidade;
-    
-    printf("\n===== CADASTRAR PEDIDO =====\n");
-    
-    printf("Digite o alimento: ");
-    fgets(alimento, sizeof(alimento), stdin);
-    alimento[strcspn(alimento, "\n")] = 0;
-    
-    printf("Digite a quantidade: ");
-    scanf("%d", &quantidade);
-    getchar();
-    
-    printf("Digite a data (DD/MM/AAAA): ");
-    fgets(data, sizeof(data), stdin);
-    data[strcspn(data, "\n")] = 0;
-    
-    FILE *file = fopen("pedidos.txt", "a");
-    if(file != NULL) {
-        fprintf(file, "%s,%s,%d,%s,0\n", usuario_logado, alimento, quantidade, data);
-        fclose(file);
-        printf("Pedido salvo!\n");
-    } else {
-        printf("Erro ao salvar pedido!\n");
-    }
-    
-    system("pause");
 }
 
 int main(){
