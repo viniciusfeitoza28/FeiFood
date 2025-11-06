@@ -527,40 +527,445 @@ void historico_pedidos() {
 }
 
 void editar_pedido() {
+    if (strlen(usuario_logado) == 0) {
+        printf("Nenhum usuario logado!\n");
+        system("pause");
+        return;
+    }
+    
     printf("\n=== EDITAR PEDIDO ===\n");
-    printf("Funcionalidade em desenvolvimento...\n");
-    printf("Aqui sera possivel editar pedidos existentes.\n");
+    
+    // Mostra os pedidos atuais
+    char nome_arquivo[100];
+    sprintf(nome_arquivo, "pedidos_%s.txt", usuario_logado);
+    
+    FILE *arquivo_pedidos = fopen(nome_arquivo, "r");
+    if (arquivo_pedidos == NULL) {
+        printf("Voce nao tem pedidos para editar!\n");
+        system("pause");
+        return;
+    }
+    
+    // Mostra todos os pedidos
+    printf("Seus pedidos atuais:\n");
+    printf("====================\n");
+    
+    char linha_pedido[300];
+    int numero_pedido = 1;
+    int total_pedidos = 0;
+    int i; // Declarada fora do for
+    char pedidos_guardados[20][300]; // Array para guardar os pedidos
+    
+    while (fgets(linha_pedido, sizeof(linha_pedido), arquivo_pedidos) != NULL) {
+        printf("%d. %s", numero_pedido, linha_pedido);
+        strcpy(pedidos_guardados[total_pedidos], linha_pedido);
+        numero_pedido++;
+        total_pedidos++;
+    }
+    fclose(arquivo_pedidos);
+    
+    if (total_pedidos == 0) {
+        printf("Nenhum pedido encontrado.\n");
+        system("pause");
+        return;
+    }
+    
+    // Pede qual pedido editar
+    int pedido_editar;
+    printf("\nDigite o numero do pedido que deseja editar (ou 0 para cancelar): ");
+    scanf("%d", &pedido_editar);
+    getchar();
+    
+    if (pedido_editar == 0) {
+        printf("Operacao cancelada.\n");
+        system("pause");
+        return;
+    }
+    
+    if (pedido_editar < 1 || pedido_editar > total_pedidos) {
+        printf("Numero de pedido invalido!\n");
+        system("pause");
+        return;
+    }
+    
+    // Mostra opções de edição
+    printf("\n=== OPCOES DE EDICAO ===\n");
+    printf("Pedido selecionado: %s", pedidos_guardados[pedido_editar-1]);
+    printf("\nO que deseja fazer?\n");
+    printf("1- Mudar quantidade do alimento\n");
+    printf("2- Mudar alimento\n");
+    printf("3- Adicionar novo alimento ao pedido\n");
+    printf("4- Remover alimento do pedido\n");
+    printf("5- Cancelar\n");
+    printf("Escolha uma opcao: ");
+    
+    int opcao_edicao;
+    scanf("%d", &opcao_edicao);
+    getchar();
+    
+    switch(opcao_edicao) {
+        case 1: {
+            // Mudar quantidade
+            printf("\n=== MUDAR QUANTIDADE ===\n");
+            printf("Pedido atual: %s", pedidos_guardados[pedido_editar-1]);
+            
+            int nova_quantidade;
+            printf("Digite a nova quantidade: ");
+            scanf("%d", &nova_quantidade);
+            getchar();
+            
+            if (nova_quantidade <= 0) {
+                printf("Quantidade invalida! Deve ser maior que zero.\n");
+                system("pause");
+                return;
+            }
+            
+            // Extrai informações do pedido
+            char alimento[100], data[20], avaliacao[20];
+            int quantidade_antiga;
+            
+            // Parse do pedido
+            sscanf(pedidos_guardados[pedido_editar-1], "Alimento: %[^|] | Quantidade: %d | Data: %[^|] | Avaliacao: %[^\n]", 
+                   alimento, &quantidade_antiga, data, avaliacao);
+            
+            // Remove espaços extras do alimento
+            alimento[strcspn(alimento, " ")] = '\0';
+            
+            // Atualiza o pedido
+            sprintf(pedidos_guardados[pedido_editar-1], 
+                    "Alimento: %s | Quantidade: %d | Data: %s | Avaliacao: %s\n", 
+                    alimento, nova_quantidade, data, avaliacao);
+            
+            printf("Quantidade alterada de %d para %d!\n", quantidade_antiga, nova_quantidade);
+            break;
+        }
+        
+        case 2: {
+            // Mudar alimento
+            printf("\n=== MUDAR ALIMENTO ===\n");
+            printf("Pedido atual: %s", pedidos_guardados[pedido_editar-1]);
+            
+            char novo_alimento[100];
+            printf("Digite o novo alimento: ");
+            fgets(novo_alimento, sizeof(novo_alimento), stdin);
+            novo_alimento[strcspn(novo_alimento, "\n")] = 0;
+            
+            // Extrai informações do pedido
+            char alimento_antigo[100], data[20], avaliacao[20];
+            int quantidade;
+            
+            sscanf(pedidos_guardados[pedido_editar-1], "Alimento: %[^|] | Quantidade: %d | Data: %[^|] | Avaliacao: %[^\n]", 
+                   alimento_antigo, &quantidade, data, avaliacao);
+            
+            // Atualiza o pedido
+            sprintf(pedidos_guardados[pedido_editar-1], 
+                    "Alimento: %s | Quantidade: %d | Data: %s | Avaliacao: %s\n", 
+                    novo_alimento, quantidade, data, avaliacao);
+            
+            printf("Alimento alterado de '%s' para '%s'!\n", alimento_antigo, novo_alimento);
+            break;
+        }
+        
+        case 3: {
+            // Adicionar novo alimento
+            printf("\n=== ADICIONAR ALIMENTO ===\n");
+            
+            char novo_alimento[100];
+            int nova_quantidade;
+            char nova_data[20];
+            
+            printf("Digite o novo alimento: ");
+            fgets(novo_alimento, sizeof(novo_alimento), stdin);
+            novo_alimento[strcspn(novo_alimento, "\n")] = 0;
+            
+            printf("Digite a quantidade: ");
+            scanf("%d", &nova_quantidade);
+            getchar();
+            
+            printf("Digite a data (DD/MM/AAAA): ");
+            fgets(nova_data, sizeof(nova_data), stdin);
+            nova_data[strcspn(nova_data, "\n")] = 0;
+            
+            if (total_pedidos < 20) {
+                // Adiciona novo pedido ao array
+                sprintf(pedidos_guardados[total_pedidos], 
+                        "Alimento: %s | Quantidade: %d | Data: %s | Avaliacao: Nao avaliado\n", 
+                        novo_alimento, nova_quantidade, nova_data);
+                total_pedidos++;
+                printf("Novo alimento adicionado ao pedido!\n");
+            } else {
+                printf("Limite maximo de pedidos atingido!\n");
+            }
+            break;
+        }
+        
+        case 4: {
+            // Remover alimento
+            printf("\n=== REMOVER ALIMENTO ===\n");
+            printf("Pedido que sera removido: %s", pedidos_guardados[pedido_editar-1]);
+            
+            char confirmacao;
+            printf("Tem certeza que deseja remover este alimento? (s/n): ");
+            scanf("%c", &confirmacao);
+            getchar();
+            
+            if (confirmacao == 's' || confirmacao == 'S') {
+                // Remove o pedido deslocando os demais
+                for (i = pedido_editar-1; i < total_pedidos-1; i++) {
+                    strcpy(pedidos_guardados[i], pedidos_guardados[i+1]);
+                }
+                total_pedidos--;
+                printf("Alimento removido do pedido!\n");
+            } else {
+                printf("Remocao cancelada.\n");
+            }
+            break;
+        }
+        
+        case 5:
+            printf("Edicao cancelada.\n");
+            system("pause");
+            return;
+            
+        default:
+            printf("Opcao invalida!\n");
+            system("pause");
+            return;
+    }
+    
+    // Salva as alterações no arquivo
+    FILE *arquivo_novo = fopen(nome_arquivo, "w");
+    if (arquivo_novo != NULL) {
+        for (i = 0; i < total_pedidos; i++) {
+            fputs(pedidos_guardados[i], arquivo_novo);
+        }
+        fclose(arquivo_novo);
+        printf("Alteracoes salvas com sucesso!\n");
+    } else {
+        printf("Erro ao salvar alteracoes!\n");
+    }
+    
     system("pause");
 }
 
 void excluir_pedido() {
+    if (strlen(usuario_logado) == 0) {
+        printf("Nenhum usuario logado!\n");
+        system("pause");
+        return;
+    }
+    
     printf("\n=== EXCLUIR PEDIDO ===\n");
-    printf("Funcionalidade em desenvolvimento...\n");
-    printf("Aqui sera possivel excluir pedidos.\n");
+    
+    // Primeiro mostra os pedidos atuais
+    char nome_arquivo[100];
+    sprintf(nome_arquivo, "pedidos_%s.txt", usuario_logado);
+    
+    FILE *arquivo_pedidos = fopen(nome_arquivo, "r");
+    if (arquivo_pedidos == NULL) {
+        printf("Voce nao tem pedidos para excluir!\n");
+        system("pause");
+        return;
+    }
+    
+    // Mostra todos os pedidos
+    printf("Seus pedidos atuais:\n");
+    printf("====================\n");
+    
+    char linha_pedido[300];
+    int numero_pedido = 1;
+    int total_pedidos = 0;
+    
+    // Conta e mostra os pedidos
+    while (fgets(linha_pedido, sizeof(linha_pedido), arquivo_pedidos) != NULL) {
+        printf("%d. %s", numero_pedido, linha_pedido);
+        numero_pedido++;
+        total_pedidos++;
+    }
+    fclose(arquivo_pedidos);
+    
+    if (total_pedidos == 0) {
+        printf("Nenhum pedido encontrado.\n");
+        system("pause");
+        return;
+    }
+    
+    // Pede qual pedido excluir
+    int pedido_excluir;
+    printf("\nDigite o numero do pedido que deseja excluir (ou 0 para cancelar): ");
+    scanf("%d", &pedido_excluir);
+    getchar();
+    
+    if (pedido_excluir == 0) {
+        printf("Operacao cancelada.\n");
+        system("pause");
+        return;
+    }
+    
+    if (pedido_excluir < 1 || pedido_excluir > total_pedidos) {
+        printf("Numero de pedido invalido!\n");
+        system("pause");
+        return;
+    }
+    
+    // Confirma a exclusão
+    char confirmacao;
+    printf("Tem certeza que deseja excluir o pedido %d? (s/n): ", pedido_excluir);
+    scanf("%c", &confirmacao);
+    getchar();
+    
+    if (confirmacao != 's' && confirmacao != 'S') {
+        printf("Exclusao cancelada.\n");
+        system("pause");
+        return;
+    }
+    
+    // Reabre o arquivo para ler todos os pedidos
+    arquivo_pedidos = fopen(nome_arquivo, "r");
+    if (arquivo_pedidos == NULL) {
+        printf("Erro ao abrir arquivo de pedidos!\n");
+        system("pause");
+        return;
+    }
+    
+    // Cria um arquivo temporário
+    char nome_arquivo_temp[100];
+    sprintf(nome_arquivo_temp, "temp_%s.txt", usuario_logado);
+    FILE *arquivo_temp = fopen(nome_arquivo_temp, "w");
+    
+    if (arquivo_temp == NULL) {
+        printf("Erro ao criar arquivo temporario!\n");
+        fclose(arquivo_pedidos);
+        system("pause");
+        return;
+    }
+    
+    // Copia todos os pedidos exceto o que será excluído
+    int pedido_atual = 1;
+    while (fgets(linha_pedido, sizeof(linha_pedido), arquivo_pedidos) != NULL) {
+        if (pedido_atual != pedido_excluir) {
+            fputs(linha_pedido, arquivo_temp);
+        } else {
+            printf("Pedido %d excluido: %s", pedido_excluir, linha_pedido);
+        }
+        pedido_atual++;
+    }
+    
+    fclose(arquivo_pedidos);
+    fclose(arquivo_temp);
+    
+    // Remove o arquivo original e renomeia o temporário
+    remove(nome_arquivo);
+    rename(nome_arquivo_temp, nome_arquivo);
+    
+    printf("Pedido excluido com sucesso!\n");
     system("pause");
 }
 
 void avaliar_pedido() {
-    int numero_pedido;
-    int estrelas;
+    if (strlen(usuario_logado) == 0) {
+        printf("Nenhum usuario logado!\n");
+        system("pause");
+        return;
+    }
     
     printf("\n=== AVALIAR PEDIDO ===\n");
     
     // Primeiro mostra os pedidos
-    historico_pedidos();
+    char nome_arquivo[100];
+    sprintf(nome_arquivo, "pedidos_%s.txt", usuario_logado);
     
-    printf("Digite o numero do pedido que deseja avaliar: ");
-    scanf("%d", &numero_pedido);
+    FILE *arquivo_pedidos = fopen(nome_arquivo, "r");
+    if (arquivo_pedidos == NULL) {
+        printf("Voce nao tem pedidos para avaliar!\n");
+        system("pause");
+        return;
+    }
+    
+    // Mostra todos os pedidos
+    printf("Seus pedidos:\n");
+    printf("=============\n");
+    
+    char linha_pedido[300];
+    int numero_pedido = 1;
+    int total_pedidos = 0;
+    int i;
+    char pedidos_guardados[20][300]; // Array para guardar os pedidos
+    
+    while (fgets(linha_pedido, sizeof(linha_pedido), arquivo_pedidos) != NULL) {
+        printf("%d. %s", numero_pedido, linha_pedido);
+        strcpy(pedidos_guardados[total_pedidos], linha_pedido);
+        numero_pedido++;
+        total_pedidos++;
+    }
+    fclose(arquivo_pedidos);
+    
+    if (total_pedidos == 0) {
+        printf("Nenhum pedido encontrado.\n");
+        system("pause");
+        return;
+    }
+    
+    // Pede qual pedido avaliar
+    int pedido_avaliar;
+    printf("\nDigite o numero do pedido que deseja avaliar: ");
+    scanf("%d", &pedido_avaliar);
     getchar();
     
+    if (pedido_avaliar < 1 || pedido_avaliar > total_pedidos) {
+        printf("Numero de pedido invalido!\n");
+        system("pause");
+        return;
+    }
+    
+    // Pede a avaliação
+    int estrelas;
     printf("Digite a avaliacao (0-5 estrelas): ");
     scanf("%d", &estrelas);
     getchar();
     
     if (estrelas < 0 || estrelas > 5) {
         printf("Avaliacao invalida! Use valores de 0 a 5.\n");
+        system("pause");
+        return;
+    }
+    
+    // Extrai informações do pedido atual
+    char alimento[100], data[20], avaliacao_antiga[20];
+    int quantidade;
+    
+    // Parse do pedido selecionado
+    sscanf(pedidos_guardados[pedido_avaliar-1], "Alimento: %[^|] | Quantidade: %d | Data: %[^|] | Avaliacao: %[^\n]", 
+           alimento, &quantidade, data, avaliacao_antiga);
+    
+    // Remove espaços extras do alimento
+    alimento[strcspn(alimento, " ")] = '\0';
+    
+    // Cria a string da avaliação
+    char nova_avaliacao[20];
+    if (estrelas == 0) {
+        strcpy(nova_avaliacao, "0 estrela");
+    } else if (estrelas == 1) {
+        strcpy(nova_avaliacao, "1 estrela");
     } else {
-        printf("Pedido %d avaliado com %d estrelas!\n", numero_pedido, estrelas);
+        sprintf(nova_avaliacao, "%d estrelas", estrelas);
+    }
+    
+    // Atualiza o pedido com a nova avaliação
+    sprintf(pedidos_guardados[pedido_avaliar-1], 
+            "Alimento: %s | Quantidade: %d | Data: %s | Avaliacao: %s\n", 
+            alimento, quantidade, data, nova_avaliacao);
+    
+    // Salva as alterações no arquivo
+    FILE *arquivo_novo = fopen(nome_arquivo, "w");
+    if (arquivo_novo != NULL) {
+        for (i = 0; i < total_pedidos; i++) {
+            fputs(pedidos_guardados[i], arquivo_novo);
+        }
+        fclose(arquivo_novo);
+        printf("Pedido %d avaliado com %s!\n", pedido_avaliar, nova_avaliacao);
+    } else {
+        printf("Erro ao salvar avaliacao!\n");
     }
     
     system("pause");
