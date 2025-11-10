@@ -109,12 +109,12 @@ void menu_apos_login(){
 
 void cadastro(){
     printf("Digite seu nome: ");
-    fgets(nome_input, sizeof(nome_input), stdin);
+    fgets(nome_input, sizeof(nome_input), stdin); //até 50
     nome_input[strcspn(nome_input, "\n")] = 0;
     
     printf("Digite sua senha: ");
     fgets(senha_input, sizeof(senha_input), stdin);
-    senha_input[strcspn(senha_input, "\n")] = 0;
+    senha_input[strcspn(senha_input, "\n")] = 0; //remove ENTER
     
     FILE *arquivo_usuarios = fopen("usuarios.txt", "a");
     if (arquivo_usuarios == NULL) {
@@ -161,12 +161,14 @@ void cadastrar_novo_usuario(){
 }
 
 void login(){
+	//usei variaveis locais aqui para nao dar confusao com as globais que vao ser usadas para manipular os arquivos
+	
     char usuario_correto[50];
     char senha_correta[50];
     char usuario_input[50];
     char senha_input_login[50];
     bool login_valido = false;
-    int contador, posicao_virgula, contador_j, contador_k;
+    int contador, posicao_virgula, contador_j, contador_k; //variaveis so p loop
     
     printf("===== LOGIN =====\n");
     printf("Usuario: ");
@@ -179,10 +181,12 @@ void login(){
     
     if(arquivo_usuarios != NULL){
         char linha[100];
+        
+        //percorre todo arquivo e tira a quebra de linha
         while(fgets(linha, sizeof(linha), arquivo_usuarios) != NULL){
             linha[strcspn(linha, "\n")] = 0;
             
-            // Encontra a virgula manualmente
+            // encontra a virgula manualmente e quando acha para
             posicao_virgula = -1;
             for(contador = 0; linha[contador] != '\0'; contador++){
                 if(linha[contador] == ','){
@@ -191,28 +195,33 @@ void login(){
                 }
             }
             
+            
+            //quando acha virgula pega login e senha
             if(posicao_virgula != -1){
-                // Copia usuario (ate a virgula)
                 for(contador = 0; contador < posicao_virgula && contador < 49; contador++){
                     usuario_correto[contador] = linha[contador];
                 }
-                usuario_correto[contador] = '\0';
                 
-                // Remove espacos do final do usuario
+                
+                usuario_correto[contador] = '\0'; //"\0" para "terminar" a string
+                
+                
+                //pega login
                 while(contador > 0 && usuario_correto[contador-1] == ' '){
-                    usuario_correto[--contador] = '\0';
+                    usuario_correto[--contador] = '\0'; //substitui espaço "livre" por \0
                 }
-                
-                // Copia senha (depois da virgula, pulando espacos)
+                //pega senha
                 contador_j = posicao_virgula + 1;
                 while(linha[contador_j] == ' ') contador_j++;
                 
+                //copia senha 
                 contador_k = 0;
                 while(linha[contador_j] != '\0' && contador_k < 49){
                     senha_correta[contador_k++] = linha[contador_j++];
                 }
+                //termina string
                 senha_correta[contador_k] = '\0';
-                
+                //autenticador
                 if(strcmp(usuario_input, usuario_correto) == 0 && strcmp(senha_input_login, senha_correta) == 0){
                     login_valido = true;
                     strcpy(usuario_logado, usuario_input);
@@ -289,7 +298,7 @@ void listar_historico_buscas() {
     
     char linha_busca[200];
     int contador_busca = 1;
-    
+    //percorre arquivo printando buscas
     while (fgets(linha_busca, sizeof(linha_busca), arquivo_historico) != NULL) {
         printf("%d. %s", contador_busca, linha_busca);
         contador_busca++;
@@ -312,11 +321,12 @@ void buscar_alimento(){
     bool alimento_encontrado = false;
     int contador;
     
+    //percorre arquivo atras da busca do usuario
     printf("Digite a comida que deseja achar: ");
     fgets(termo_busca, sizeof(termo_busca), stdin);
     termo_busca[strcspn(termo_busca, "\n")] = 0;
     
-    // Salva no histórico de buscas
+    // salva no histórico de buscas
     salvar_historico_busca(termo_busca);
     
     FILE *arquivo_cardapio = fopen("cardapio.txt", "r");
@@ -330,7 +340,7 @@ void buscar_alimento(){
     printf("\nResultados da busca por '%s':\n", termo_busca);
     printf("============================\n");
     
-    // Converte busca para minusculo
+    // converte busca para minusculo (case-insensitive)
     char termo_busca_minusculo[100];
     for(contador = 0; termo_busca[contador] != '\0'; contador++){
         if(termo_busca[contador] >= 'A' && termo_busca[contador] <= 'Z'){
