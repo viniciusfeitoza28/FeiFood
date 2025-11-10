@@ -7,4 +7,3 @@ hoe, hoe123
 puta, puta123
 desc123, desc123
 a, a
-bucetagames, 123
